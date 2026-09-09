@@ -1,4 +1,5 @@
 streamlit
+extra-streamlit-components
 langgraph
 langchain-core
 openai

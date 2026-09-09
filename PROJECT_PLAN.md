@@ -28,7 +28,7 @@ evidence is weak.
 - **LLM**: OpenAI `gpt-4o-mini` (Planner + Reasoning agents)
 - **Embeddings**: OpenAI `text-embedding-3-small`
 - **Chunking**: token-based (tiktoken), ~800 tokens / ~100 overlap (range 500-1000)
-- **Retrieval**: top-k = 8 chunks per query
+- **Retrieval**: top-k = 8 chunks per query (configurable via `TOP_K`)
 - **Confidence threshold**: 0.7 (below this → "insufficient evidence")
 - **Upload guardrails**: 20MB max file size, allowed extensions: pdf, txt, csv, xlsx/xls, docx/doc
 - **Persistence**: SQLite (`Utility/storage/app_data.db`) for chat threads, messages, token usage logs
@@ -36,12 +36,12 @@ evidence is weak.
 - **Orchestration**: LangGraph `StateGraph` with conditional entry point
 - **Data**: public only — 3GPP docs and telecom AI resources; sample files are uploaded manually by the user and never indexed automatically
 
-### Session isolation (optional feature)
-- Each Streamlit browser session receives a random `session_id`.
-- session ID is for specific browser specefic tab not for entire browser.
+### Session isolation
+- Each browser profile receives a persistent `session_id` stored in a long-lived cookie (`extra-streamlit-components`), not just a single tab — reopening the app or opening a new tab in the same browser profile restores the same session.
 - Uploaded files are stored under `Input Data/<session_id>/`.
 - Chroma uses a session-specific collection, and SQLite uses `Utility/storage/sessions/<session_id>.db`.
 - Chat history, token metrics, and retrieval results cannot cross session boundaries.
+- Clearing browser cookies or switching to a different browser profile starts a new session.
 
 ### Explicitly deferred to Future Enhancements (not built in MVP)
 - Web-scraping ingestion agent (auto-expanding corpus from 3GPP/related sites)
@@ -54,7 +54,7 @@ evidence is weak.
 2. **Ingestion pipeline** (tool node, no LLM reasoning) — parses, chunks, embeds, stores documents
 3. **Retrieval Agent** (no LLM) — embeds query, similarity search in Chroma, returns top-k chunks + scores
 4. **Reasoning/RAG Agent** (LLM) — generates grounded answer + citations, includes recent thread history for follow-up coherence
-5. **Validation Agent** (rule-based, LLM optional) — computes confidence from the strongest semantic similarity or meaningful-term overlap, requires citation presence, and rejects explicit model refusals even when retrieval confidence is high; below threshold → asks user to upload more documents (no auto web-scraping)
+5. **Validation Agent** (rule-based, LLM optional) — computes confidence from the strongest semantic similarity or meaningful-term overlap (typo-tolerant via fuzzy matching, with a small near-miss recovery when a minor spelling mistake alone drops semantic similarity just under threshold), requires citation presence, and rejects explicit model refusals even when retrieval confidence is high; below threshold → asks user to upload more documents (no auto web-scraping)
 
 ### Workflow triggers (conditional entry into the graph)
 - `new_query` — full run: Planner → Retrieval → Reasoning → Validation
@@ -129,8 +129,8 @@ sequenceDiagram
     Graph->>Retrieval: retrieve(query)
     Retrieval->>LLM: embeddings(query)
     LLM-->>Retrieval: query embedding
-    Retrieval->>Chroma: similarity_search(embedding, k=4)
-    Chroma-->>Retrieval: top-4 chunks + similarity scores
+    Retrieval->>Chroma: similarity_search(embedding, k=8)
+    Chroma-->>Retrieval: top-8 chunks + similarity scores
     Retrieval->>Obs: log(node=retrieval, scores, latency)
 
     Graph->>Reasoning: generate_answer(query, chunks, recent history)
@@ -160,7 +160,7 @@ sequenceDiagram
         Note over Graph,Planner: Planner is skipped - query/domain unchanged
         Graph->>Retrieval: retrieve(pending_query)
         Retrieval->>Chroma: similarity_search(...)
-        Chroma-->>Retrieval: updated top-4 chunks
+        Chroma-->>Retrieval: updated top-8 chunks
         Graph->>Reasoning: generate_answer(pending_query, chunks)
         Graph->>Validation: validate(...)
         Validation-->>Graph: status=answered/insufficient_evidence

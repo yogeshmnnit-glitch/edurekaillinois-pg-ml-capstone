@@ -6,7 +6,7 @@ vector store of 3GPP/telecom content, with confidence-gated answers and a "pleas
 documents" recovery flow instead of fabricating responses.
 
 ## Status
-Planning complete, implementation not yet started. See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the
+Implemented and running locally via Streamlit. See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the
 full design: requirements mapping, tech stack, 5-agent architecture, workflow triggers, chat
 history/observability design, project structure, sequence & module diagrams, implementation
 phases, and test plan.
@@ -23,14 +23,15 @@ phases, and test plan.
 - `requirements.txt` — Python dependencies
 - `activate_env.bat` / `create_venv.bat` / `deactivate_env.bat` — local Python virtual environment helpers
 
-Each Streamlit browser session receives a unique session ID. Uploaded files, Chroma collections,
-chat history, and token metrics are isolated by that ID. A new user starts with an empty document
-list and must upload documents before asking questions.
+Each browser profile receives a persistent session ID in a cookie. Uploaded files, Chroma
+collections, chat history, and token metrics are isolated by that ID and remain available after
+refreshing or reopening the app in the same browser profile. Clearing browser cookies or using a
+different browser profile creates a new session.
 
 ## Getting started
 1. `create_venv.bat` then `activate_env.bat`
 2. `pip install -r requirements.txt`
 3. Copy `.env.example` to `.env` and fill in `OPENAI_API_KEY`
-4. Run instructions (`streamlit run app.py`) will be added once `app.py` exists
+4. Run `streamlit run app.py`
 5. Upload documents form `./Sample Data`. You can upload one or many of different type of documents.
 6. As this is Telecom  research specific docuemnts. There are sample questions from one or more documents listed in `"Bot Sample Questions.md"`.   

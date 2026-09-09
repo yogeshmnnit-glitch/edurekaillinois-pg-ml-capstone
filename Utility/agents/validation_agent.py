@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+from difflib import get_close_matches
 
 from Utility.config.prompts import INSUFFICIENT_EVIDENCE_MESSAGE, SAFETY_VIOLATION_MESSAGE, VALIDATION_SYSTEM_PROMPT
 from Utility.config.settings import settings
@@ -31,9 +32,22 @@ def _compute_confidence(state: GraphState) -> float:
     query_terms = {term for term in re.findall(r"[a-z0-9]+", query) if term not in _STOP_WORDS}
     context = " ".join(chunk["text"] for chunk in chunks).lower()
     context_terms = set(re.findall(r"[a-z0-9]+", context))
-    lexical_score = len(query_terms & context_terms) / len(query_terms) if query_terms else 0.0
+    # Tolerate minor typos (e.g. "pusrpose") by falling back to a fuzzy match per unmatched term.
+    matched_terms = query_terms & context_terms
+    for term in query_terms - matched_terms:
+        if len(term) >= 4 and get_close_matches(term, context_terms, n=1, cutoff=0.8):
+            matched_terms.add(term)
+    lexical_score = len(matched_terms) / len(query_terms) if query_terms else 0.0
 
-    return max(0.0, min(1.0, max(semantic_score, lexical_score)))
+    confidence = max(semantic_score, lexical_score)
+    # A typo can shave a few points off embedding similarity alone; if the semantic score is
+    # already near threshold and most query terms are still (fuzzy-)present in the retrieved
+    # context, recover the near-miss instead of penalizing a minor spelling mistake.
+    near_miss = settings.confidence_threshold - 0.1 <= semantic_score < settings.confidence_threshold
+    if near_miss and lexical_score >= 0.66:
+        confidence = min(1.0, max(confidence, semantic_score + 0.05))
+
+    return max(0.0, min(1.0, confidence))
 
 
 def _answer_declines_evidence(state: GraphState) -> bool:
