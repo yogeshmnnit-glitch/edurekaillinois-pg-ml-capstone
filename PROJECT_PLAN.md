@@ -1,7 +1,7 @@
 # Multi-Agent Enterprise Knowledge Assistant — Capstone Project Plan
 
 > Generative AI + Agentic RAG assistant over enterprise/3GPP telecom documents.
-> Status: Plan approved through iterative review (2026-09-07). Ready for implementation.
+> Status: Plan approved through iterative review (2026-09-07).
 
 ## 1. Project Description
 Streamlit application where users upload enterprise documents (PDF, TXT, CSV, Excel, Word) and ask
@@ -20,7 +20,7 @@ evidence is weak.
 | Agentic reasoning (plan/retrieve/reason/validate) | 5-agent LangGraph workflow |
 | Guardrails / reliability | Validation agent, input/file checks, no-fabrication fallback |
 | Simple/intuitive UI | Streamlit sidebar + chat + observability panel |
-| Deploy + document | Docker + this document |
+| Run + document | Local Streamlit setup in `README.md` and this document |
 
 ## 3. Tech Stack & Key Decisions
 - **App**: Python, Streamlit (no separate FastAPI backend — Streamlit calls the agent pipeline directly)
@@ -77,7 +77,7 @@ evidence is weak.
 ## 6. Project Structure
 ```
 PG ML Final Project/
-├── .env / .env.example / .gitignore / requirements.txt / Dockerfile
+├── .env / .env.example / .gitignore / requirements.txt
 ├── app.py                          # Streamlit entrypoint
 ├── Sample Data/                    # preloaded demo docs (renamed from original "Input Data")
 ├── Input Data/                     # runtime user-uploaded docs
@@ -321,7 +321,7 @@ graph TD;
 7. **Streamlit UI** — `app.py`, `Utility/ui/{sidebar,chat_panel,observability_panel}.py`
 8. **Guardrails polish** — input/file validation, error handling, no-fabrication wording, basic
    prompt-injection mitigation
-9. **Deployment & docs** — Dockerfile, architecture doc, setup steps, limitations, future enhancements
+9. **Documentation & local run** — setup steps, architecture doc, limitations, future enhancements
 10. **Verification** — see Test Plan below
 
 ## 11. Test Plan
@@ -333,7 +333,7 @@ graph TD;
 | 4 | Upload a relevant doc after insufficient-evidence response | Graph resumes at Ingestion→Retrieval→Reasoning→Validation using same pending query, Planner skipped |
 | 5 | Submit a new/different query after an insufficient-evidence state | Full pipeline reruns from Planner |
 | 6 | Observability panel after a turn | Non-zero token/latency/similarity/timing values displayed |
-| 7 | Docker build + run | App reachable; Chroma data persists across container restart via volume |
+| 7 | Run locally with `streamlit run app.py` | App starts and is reachable; Chroma and SQLite data persist across app restarts |
 | 8 | Close/reopen app, reopen a thread with pending insufficient-evidence state, upload doc | Resumes at Ingestion using persisted `pending_query`, not a fresh Planner run |
 | 9 | Ask questions in the same thread across two different days | "Today" token card shows only today's usage; "This Session" shows full thread lifetime total |
 | 10 | Backdate several threads past retention threshold, mark one as active, run reset | Only non-active, over-threshold threads deleted; active thread survives |
@@ -342,12 +342,4 @@ graph TD;
 | 13 | Click any thread in sidebar list | Resumes instantly, zero dialogs/confirmations |
 
 ## 12. Known Prerequisites / Open Items
-- `Sample Data` currently only has 2 files (CSV + TXT); the additional files referenced in the
-  original proposal (.doc, .xlsx, PDF) need to be supplied by the user before a full-format demo
 - OpenAI API key must be provided via `.env` (`OPENAI_API_KEY`)
-
-## 13. Future Enhancements (documented, not built)
-- Web-scraping ingestion agent to auto-expand the 3GPP corpus from public sources
-- Dedicated Citation agent for more advanced reference formatting
-- Dedicated Observability agent / LangSmith tracing integration
-- Multi-user auth and per-user chat history separation

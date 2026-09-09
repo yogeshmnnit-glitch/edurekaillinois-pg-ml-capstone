@@ -32,3 +32,5 @@ list and must upload documents before asking questions.
 2. `pip install -r requirements.txt`
 3. Copy `.env.example` to `.env` and fill in `OPENAI_API_KEY`
 4. Run instructions (`streamlit run app.py`) will be added once `app.py` exists
+5. Upload documents form `./Sample Data`. You can upload one or many of different type of documents.
+6. As this is Telecom  research specific docuemnts. There are sample questions from one or more documents listed in `"Bot Sample Questions.md"`.   
