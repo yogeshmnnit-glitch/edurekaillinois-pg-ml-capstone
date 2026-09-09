@@ -1,7 +1,7 @@
-# Multi-Agent Enterprise Knowledge Assistant — Capstone Project Plan
+# Multi-Agent 3GPP Telecom Research Knowledge Assistant — Capstone Project Plan
 
-> Generative AI + Agentic RAG assistant over enterprise/3GPP telecom documents.
-> Status: Plan approved through iterative review (2026-09-07).
+> Generative AI + Agentic RAG assistant over enterprise/3GPP telecom research documents.
+> Status: Plan approved and Implemented.
 
 ## 1. Project Description
 Streamlit application where users upload enterprise documents (PDF, TXT, CSV, Excel, Word) and ask
@@ -36,8 +36,9 @@ evidence is weak.
 - **Orchestration**: LangGraph `StateGraph` with conditional entry point
 - **Data**: public only — 3GPP docs and telecom AI resources; sample files are uploaded manually by the user and never indexed automatically
 
-### Session isolation
+### Session isolation (optional feature)
 - Each Streamlit browser session receives a random `session_id`.
+- session ID is for specific browser specefic tab not for entire browser.
 - Uploaded files are stored under `Input Data/<session_id>/`.
 - Chroma uses a session-specific collection, and SQLite uses `Utility/storage/sessions/<session_id>.db`.
 - Chat history, token metrics, and retrieval results cannot cross session boundaries.
