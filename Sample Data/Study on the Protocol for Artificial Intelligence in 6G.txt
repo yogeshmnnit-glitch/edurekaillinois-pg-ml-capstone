@@ -1,0 +1,461 @@
+3GPP TR 29.832 V0.2.0 (2026-09)
+Technical Report
+
+
+
+3rd Generation Partnership Project;
+Technical Specification Group Core Network and Terminals;
+Study on the Protocol for Artificial Intelligence in 6G;
+(Release 20)
+	
+ 	 
+
+The present document has been developed within the 3rd Generation Partnership Project (3GPP TM) and may be further elaborated for the purposes of 3GPP.
+The present document has not been subject to any approval process by the 3GPP Organizational Partners and shall not be implemented.
+This Specification is provided for future development work within 3GPP only. The Organizational Partners accept no liability for any use of this Specification.
+Specifications and Reports for implementation of the 3GPP TM system should be obtained via the 3GPP Organizational Partners' Publications Offices.
+ 
+
+3GPP
+Postal address
+
+3GPP support office address
+650 Route des Lucioles - Sophia Antipolis
+Valbonne - FRANCE
+Tel.: +33 4 92 94 42 00 Fax: +33 4 93 65 47 16
+Internet
+https://www.3gpp.org
+
+Copyright Notification
+No part may be reproduced except as authorized by written permission.
+The copyright and the foregoing restriction extend to reproduction in all media.
+
+© 2026, 3GPP Organizational Partners (ARIB, ATIS, CCSA, ETSI, TSDSI, TTA, TTC).
+All rights reserved.
+
+UMTS™ is a Trade Mark of ETSI registered for the benefit of its members
+3GPP™ is a Trade Mark of ETSI registered for the benefit of its Members and of the 3GPP Organizational Partners
+LTE™ is a Trade Mark of ETSI registered for the benefit of its Members and of the 3GPP Organizational Partners
+GSM® and the GSM logo are registered and owned by the GSM Association
+
+ 
+Contents
+Foreword	6
+Introduction	7
+1	Scope	8
+2	References	8
+3	Definitions of terms, symbols and abbreviations	9
+3.1	Terms	9
+3.2	Symbols	9
+3.3	Abbreviations	10
+4	Protocol requirements and assumptions	10
+4.1	Protocol requirements	10
+4.1.1	AI-Agent related protocol requirements	10
+4.1.2	Intent related protocol requirements	10
+4.2	Protocol assumptions	10
+5	Candidate Protocols and Protocol design considerations	11
+5.1	Protocol Design Considerations	11
+5.1.1	General	11
+5.1.2	Intent related protocol design considerations	11
+5.1.2.1	General	11
+5.1.3	Multi-modal data transmission related protocol design considerations	12
+5.1.4	AI Agent to Agent Communications	12
+5.1.4.1	General	12
+5.1.4.2	Task Aspects	12
+5.1.5	Protocol efficiency related protocol design considerations	12
+5.1.6	Support of AI communication types	12
+5.1.6	Support for Error Handling of AI interactions	13
+5.2	Candidate protocols	13
+5.2.1	General	13
+5.2.2	Model Context Protocol (MCP)	13
+5.2.2.1	General	13
+5.2.2.2	Architecture	13
+5.2.2.3	Protocol stack	14
+5.2.2.4	Transport layer	14
+5.2.2.5	Data layer	14
+5.2.2.6	MCP protocol procedures	15
+5.2.2.6.1	General	15
+5.2.2.6.2	Capability and protocol-version handling	15
+5.2.2.6.4	Asynchronous updates	15
+5.2.2.6.5	Progress and cancellation	15
+5.2.2.7	Security	15
+5.2.2.7.1	General	15
+5.2.2.7.2	Authorization	15
+5.2.2.8	Versioning Handling	15
+5.2.3	Agent Network Protocol (ANP)	16
+5.2.3.1	General	16
+5.2.3.2	Agent identity and trust establishment	16
+5.2.3.3	Agent description and discovery	17
+5.2.3.4	Protocol negotiation and interoperability	17
+5.2.3.5	Cross-domain agent messaging and collaboration	17
+5.2.3.6	Multi-modality	17
+5.2.4	Agent2Agent (A2A)	17
+5.2.4.1	General	17
+5.2.4.2	A2A Protocol Design principles	18
+5.2.4.3	Key elements of A2A Protocol	18
+5.2.4.3.1	Agent Discovery	18
+5.2.4.3.2	Interaction Modes	18
+5.2.4.3.3	Multi-modal Data Transimission	19
+5.2.4.3.4	A2A Protocol Extensions	19
+5.2.4.3.5.1	Agent Card	19
+5.2.4.3.5.2	Task	19
+5.2.4.3.5.3	Message	19
+5.2.4.3.5.4	Part	20
+5.2.4.3.5.5	Artifact	20
+5.2.4.4	A2A Implementations and Protocol Bindings	20
+5.2.5	3GPP Protocols	20
+5.2.5.1	General	20
+5.2.5.2	Protocol aspects that enable intent	20
+5.2.5.2.1	General	20
+5.3	Summary	20
+6.	Key issues	21
+6.1	Key issue #X	21
+6.2	Key issue #Y	21
+7	Solutions	21
+7.1	Mapping of Solutions to Key Issues	21
+7.X	Solution #A:	21
+7.Y	Solution #B:	21
+8	Evaluations	21
+9	Conclusions	21
+Annex A: Change history	22
+
+ 
+Foreword
+This Technical Report has been produced by the 3rd Generation Partnership Project (3GPP).
+The contents of the present document are subject to continuing work within the TSG and may change following formal TSG approval. Should the TSG modify the contents of the present document, it will be re-released by the TSG with an identifying change of release date and an increase in version number as follows:
+Version x.y.z
+where:
+x	the first digit:
+1	presented to TSG for information;
+2	presented to TSG for approval;
+3	or greater indicates TSG approved document under change control.
+y	the second digit is incremented for all changes of substance, i.e. technical enhancements, corrections, updates, etc.
+z	the third digit is incremented when editorial only changes have been incorporated in the document.
+In the present document, modal verbs have the following meanings:
+shall	indicates a mandatory requirement to do something
+shall not	indicates an interdiction (prohibition) to do something
+The constructions "shall" and "shall not" are confined to the context of normative provisions, and do not appear in Technical Reports.
+The constructions "must" and "must not" are not used as substitutes for "shall" and "shall not". Their use is avoided insofar as possible, and they are not used in a normative context except in a direct citation from an external, referenced, non-3GPP document, or so as to maintain continuity of style when extending or modifying the provisions of such a referenced document.
+should	indicates a recommendation to do something
+should not	indicates a recommendation not to do something
+may	indicates permission to do something
+need not	indicates permission not to do something
+The construction "may not" is ambiguous and is not used in normative elements. The unambiguous constructions "might not" or "shall not" are used instead, depending upon the meaning intended.
+can	indicates that something is possible
+cannot	indicates that something is impossible
+The constructions "can" and "cannot" are not substitutes for "may" and "need not".
+will	indicates that something is certain or expected to happen as a result of action taken by an agency the behaviour of which is outside the scope of the present document
+will not	indicates that something is certain or expected not to happen as a result of action taken by an agency the behaviour of which is outside the scope of the present document
+might	indicates a likelihood that something will happen as a result of action taken by some agency the behaviour of which is outside the scope of the present document
+might not	indicates a likelihood that something will not happen as a result of action taken by some agency the behaviour of which is outside the scope of the present document
+In addition:
+is	(or any other verb in the indicative mood) indicates a statement of fact
+is not	(or any other negative verb in the indicative mood) indicates a statement of fact
+The constructions "is" and "is not" do not indicate requirements.
+Introduction
+This Technical Report aims at studying the requirements on the Stage 3 protocols to enable the support and use of AI in 6G.
+ 
+1	Scope
+The present document studies Stage 3 protocol aspects for supporting and enabling the use of AI (e.g. AI Agent, intent) in 6G, taking into account the architectural requirements defined by SA2 in 3GPP TR 23.801-01 [4], and the security requirements defined by SA3 in 3GPP TR 33.801-01 [5].
+The study covers candidate protocols and protocol design considerations to support AI (e.g. AI Agent, intent) in 6G. It addresses Stage 3 protocol aspects for enabling AI-related services, such as exposure, discovery, authorization, and invocation of AI capabilities. The study also considers protocol support for possible interworking with other protocols in 6G, as well as interworking aspects between 5GS and 6GS with regards to AI protocols.
+2	References
+The following documents contain provisions which, through reference in this text, constitute provisions of the present document.
+-	References are either specific (identified by date of publication, edition number, version number, etc.) or non specific.
+-	For a specific reference, subsequent revisions do not apply.
+-	For a non-specific reference, the latest version applies. In the case of a reference to a 3GPP document (including a GSM document), a non-specific reference implicitly refers to the latest version of that document in the same Release as the present document.
+[1]	3GPP TR 21.905: "Vocabulary for 3GPP Specifications"
+[2]	MCP Open Source Project: "Model Context Protocol", https://github.com/modelcontextprotocol.
+[3]	MCP base protocol: "Model Context Protocol key components", https://modelcontextprotocol.io/specification/2025-11-25/basic
+[4]	3GPP TR 23.801-01: "Study on Architecture for 6G System; Stage 2"
+[5]	3GPP TR 33.801-01: "Study on Security for the 6G System"
+[6]	ANP Open Source Community: "AgentNetworkProtocol (ANP)", GitHub README, available at https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/main/README.md
+[7]	ANP Open Source Community: "Agent Network Protocol Technical White Paper", GitHub, available at https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/main/01-agentnetworkprotocol-technical-white-paper.md
+[8]	ANP Open Source Community: "did:wba Method Specification (V0.2)", GitHub, available at https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/main/03-did-wba-method-design-specification.md
+[9]	ANP Open Source Community: "ANP Agent Description Protocol Specification", GitHub, available at https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/main/07-anp-agent-description-protocol-specification.md
+[10]	ANP Open Source Community: "ANP End-to-End Instant Messaging Protocol Overview (Draft 1.0)", GitHub, available at https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/main/09-ANP-end-to-end-instant-messaging-protocol-specification.md
+[11]	ANP Open Source Community: "ANP-Agent Discovery Protocol Specification (Draft)", GitHub, available at https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/main/08-ANP-Agent-Discovery-Protocol-Specification.md
+[12]	ANP Open Source Community: "ANP-Agent Communication Meta-Protocol Specification (Draft)", GitHub, available at https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/main/06-anp-agent-communication-meta-protocol-specification.md
+[13] 	A2A Protocol: https://a2a-protocol.org/latest/specification/
+[14]	IETF RFC 8615: Well-Known Uniform Resource Identifiers (URIs)
+[15]	IETF RFC 9110: "HTTP Semantics"
+[16]	JSON-RPC 2.0 Protocol: https://www.jsonrpc.org/specification
+[17]	Server-Sent Events: https://html.spec.whatwg.org/multipage/server-sent-events.html
+[18]	gRPC: https://grpc.io/docs/
+[19]	draft-ietf-oauth-v2-1: "The OAuth 2.1 Authorization Framework"
+[20]	IETF RFC 6750: "The OAuth 2.0 Authorization Framework: Bearer Token Usage"
+[21]	IETF RFC 8414: "OAuth 2.0 Authorization Server Metadata"
+[22]	IETF RFC 8707: "Resource Indicators for OAuth 2.0"
+[23]	IETF RFC 9207: "OAuth 2.0 Authorization Server Issuer Identification"
+[24]	IETF RFC 9728: "OAuth 2.0 Protected Resource Metadata"
+[25]	draft-ietf-oauth-client-id-metadata-document: "OAuth Client ID Metadata Document"
+[26]	OpenID Foundation:"OpenID Connect Discovery 1.0"
+[27]	MCP base protocol Version 2026-07-28: "Model Context Protocol key components", https://modelcontextprotocol.io/specification/2026-07-28/basic/
+3	Definitions of terms, symbols and abbreviations
+3.1	Terms
+For the purposes of the present document, the terms given in 3GPP TR 21.905 [1], 3GPP TR 23.801-01 [4], 3GPP TR 33.801-01 [5] and the following apply. A term defined in the present document takes precedence over the definition of the same term, if any, in 3GPP TR 21.905 [1], 3GPP TR 23.801-01 [4] and 3GPP TR 33.801-01 [5].
+3.2	Symbols
+Void.
+3.3	Abbreviations
+For the purposes of the present document, the abbreviations given in 3GPP TR 21.905 [1], 3GPP TR 23.801-01 [4], 3GPP TR 33.801-01 [5] and the following apply. An abbreviation defined in the present document takes precedence over the definition of the same abbreviation, if any, in 3GPP TR 21.905 [1], 3GPP TR 23.801-01 [4] and 3GPP TR 33.801-01 [5].
+A2A	Agent2Agent
+AD	Agent Description
+ANP	Agent Network Protocol
+DID	Decentralized Identifier
+DID:WBA	Web-Based Agent DID method
+E2EE	End-to-End Encryption
+JSON	JavaScript Object Notation
+MCP	Model Context Protocol
+REST	Representational State Transfer
+RPC	Remote Procedure Calls
+WNS	WBA Name Space
+
+4	Protocol requirements and assumptions
+This clause describes protocol requirements and assumptions, if required.
+4.1	Protocol requirements
+The protocol studied for supporting and enabling the use of AI (e.g. AI agent, intent) in the 6G shall support the following requirements.
+4.1.1	AI-Agent related protocol requirements
+The protocol should support the following AI-Agent aspects, as applicable to Agent-to-Agent and Agent-to-Tool interactions:
+-	interactions involving AI agents (Agent-to-Agent), and interactions between AI agents and tools, resources, services; and
+-	extensibility to accommodate new AI-Agent related requirements subjects to operator’s policies.
+4.1.2	Intent related protocol requirements
+The protocol should support the following intent related capabilities:
+-	exchange of intent-related information between entities;
+-	exchange of information that enables the translation of intent-related information into actions, requests, tasks and/or operations;
+-	exchange of result, failure and error information associated with intent fulfilment; and
+-	extensibility to accommodate new intent-related requirements subjects to operator’s policies.
+4.2	Protocol assumptions
+This clause documents the common protocol assumptions identified for the study.
+
+5	Candidate Protocols and Protocol design considerations
+This clause describes candidate protocols which might be used to enable the use of AI (e.g., AI agent, intent) in 6G and protocol design considerations for WT#1.
+5.1	Protocol Design Considerations
+This clause describes protocol design considerations such as key common features, and evaluation criteria for the protocols to be studied as candidate protocols for the use of AI (e.g., AI agent, intent) in 6G.
+5.1.1	General
+The protocol design considerations are key common features, and evaluation criteria for the protocols to be studied, to support and enable the use of AI (e.g., AI agent, intent) in 6G.
+The protocol design considerations include:
+-	Intent related protocol design considerations;
+-	AI Agent related protocol design considerations including:
+a.	AI Agent to Agent interactions;
+b.	AI Agent to tool interactions;
+-	Protocol efficiency related protocol design considerations;
+Editor’s Note: More protocol design considerations are FFS.
+5.1.2	Intent related protocol design considerations
+5.1.2.1	General
+Intent refers to expectations, including requirements, goals, conditions, guidelines and constraints, defined in a declarative manner without specifying how to achieve or implement them. The intent-based interactions are considered for the AI related protocol design in 6G.
+The following aspects are considered for the intent related protocol design:
+-	It ensures unambiguous interpretation and processing.
+-	It is expressed in a manner that allows validation against operator policies, subscription constraints and regulatory requirements.
+-	It enables to carry natural-language instructions, intent parameters, constraints and preferences.
+-	It allows the processing of an intent.
+-	It enables progress reporting and notification mechanisms to allow the intent fulfilment, and enables tracking of the intent fulfilment status.
+-	It allows to identify the entities to handle and fulfil the intent.
+-	It allows to correlate intent and the corresponding intent fulfilment status.
+-	It enables to express goals and constraints in a manner that can be actionable and measurable.
+5.1.3	Multi-modal data transmission related protocol design considerations
+This clause documents the protocol design considerations for multi-modal data (e.g., text, file, image, real-time audio, real-time video) transmission between AI Agents, between AI agent and tools, and among other AI-enabled entities.
+The following mechanisms are considered for multi-modal data transmission protocol design:
+-	It enables multi-modal data exchange and multiplexing of different multi-modal data streams.
+-	It enables negotiation and establishment of suitable media channels for multi-modal data transmission.
+Editor’s Note: The content and whether more protocol design considerations are needed are FFS.
+5.1.4	AI Agent to Agent Communications
+5.1.4.1	General
+This clause documents the protocol design considerations for enabling the communications between AI Agents.
+5.1.4.2	Task Aspects
+The following aspects are considered for Task Lifecycle design:
+-	Task Creation/Update/Cancellation, e.g., the methods used to create, update, cancel the task and check the status of the task.
+-	Task Negotiation among agents regarding execution conditions, resource requirements.
+-	Task Execution and Monitoring, e.g., Status reporting, progress notifications, and exception handling during task execution.
+-	Task Completion and Result Delivery, e.g., execution results, delivery methods, and acknowledgment mechanisms.
+Editor’s Note: The concept of task, its definition and feasibility will be defined by stage 2, therefore, the content and whether more details are needed is FFS, and will require alignment with stage 2.
+5.1.5	Protocol efficiency related protocol design considerations
+The following efficiency related protocol design considerations can be considered:
+-	resource consumption associated with maintaining a connection for AI interactions and communications;
+-	the choice and use of different communication types;
+-	the scalability and performance of the protocol when multiple AI interactions are active concurrently, while taking into consideration the security and privacy related aspects;
+-	the suitability of the underlying transport protocol and mechanism to the applicable AI interaction;
+-	use of widely adopted protocol foundations and data formats; and
+-	the support of efficient and scalable observability and traceability functionalities that allow operators to be aware of the actual protocol handling and support risk prevention.
+5.1.6	Support of AI communication types
+Typical protocol aspects that are considered include:
+-	Role and endpoint models that help identify between agents, clients, servers, tools, resources and other service endpoints.
+-	Message handling for request/response and subscriptions/notifications, cancellation, and error reporting.
+-	Transport and binding flexibility.
+5.1.6	Support for Error Handling of AI interactions
+Typical protocol mechanisms supporting this design consideration include:
+-	Correlation information enabling related protocol exchanges associated with the same AI procedure.
+-	Error information enabling differentiation between failure causes.
+Editor's Note:	Whether Observability related considerations are needed is FFS.
+5.2	Candidate protocols
+5.2.1	General
+This clause documents the candidate AI-related (e.g. AI Agent, intent) protocols for the 6GS.
+5.2.2	Model Context Protocol (MCP)
+5.2.2.1	General
+The model context protocol (MCP) is a stateless client-server protocol built on the JSON-RPC 2.0, defining a standardized framework for enabling AI agents to communicate with external tools and data sources.
+The MCP is an open-source semantic interaction protocol utilized in the generative AI industry. MCP was first proposed by Anthropic on November 25, 2024, and now it have been donated to the Linux Foundation’s new Agentic AI Foundation by Anthropic. Implementations of MCP are available at MCP Open Source Project [2].
+The MCP enables AI models to securely discover and invoke external capabilities via abstract resource identifiers. The MCP can be a candidate protocol for its ability to provide semantic translation and map abstract AI intents to logical network capabilities, required context, and deterministic execution commands. The MCP may be able to bridge the sufficient gap for autonomous AI entities that must dynamically consume network capabilities, e.g. by defining three server-side primitives (Tools, Resources, and Prompts) and client-side features such as Elicitation.
+5.2.2.2	Architecture
+Three participants are defined in MCP, as shown in figure 5.2.2.2-1:
+-	MCP Host: The AI application (e.g., an AI agent or a LLM application) that coordinates and manages one or multiple MCP clients;
+-	MCP Client: A component that is created by the MCP host and communicates with exactly one MCP server and obtains context from the server for the MCP host to use;
+-	MCP Server: A program that provides specialized context and capabilities to MCP clients;
+ 
+Figure 5.2.2.2-1: Three participants defined in MCP
+5.2.2.3	Protocol stack
+The protocol stack of MCP includes two core layers:
+-	Data layer, which defines the JSON-RPC based protocol for client-server communication, including protocol versioning and compatibility, message patterns, and core primitives, such as tools, resources, prompts and notifications;
+-	Transport layer, which defines the communication mechanisms and channels that enable data exchange between clients and servers, including transport-specific connection establishment, message framing, and authorization.
+For remote server communication, MCP adopts streamable HTTP transport. Specifically, streamable HTTP transport uses HTTP POST for client-to-server messages with optional Server-Sent Events [17] for streaming capabilities. Standard HTTP authentication methods including bearer tokens, API keys, and custom headers are also supported. OAuth [19] is recommended by MCP to obtain authentication tokens.
+MCP also defines a stdio transport for direct process communication between local processes on the same machine. Stdio transport refers to the Standard Input/Output (Standard I/O) transport method, enables MCP client and server communicate directly by sending JSON-RPC messages back and forth through the standard I/O streams.
+MCP is a transport-agnostic protocol and allows clients and servers implementing custom transports to suit their specific needs. However, it requires that any implementations must preserve the JSON-RPC message format and message direction, request metadata and cancellation requirements defined by MCP.
+5.2.2.4	Transport layer
+The protocol currently defines two standard transport mechanisms for client-server communication. For details about the streamable HTTP transport and stdio transport, please refer to MCP base protocol [3].
+5.2.2.5	Data layer
+The data layer implements a JSON-RPC 2.0 based exchange protocol that defines the message structure and semantics. This layer includes per-request protocol metadata and server discovery, core primitives and notifications.
+Primitives define the functionalities/features that clients and servers can offer each other. Different primitives specify the types of contextual information that can be shared with hosts and the range of actions that can be performed.
+At the server side, MCP defines three core primitives that can be exposed:
+-	Tools: Executable functions that the host can invoke to perform actions.
+-	Resources: Data sources that provide contextual information to the host.
+-	Prompts: Reusable templates that help structure interactions with language models.
+Detailed information about these client and server features/primitives can be found at: MCP base protocol [27]
+Notification enables MCP servers to provide real-time updates to connected clients. Notifications are sent as JSON-RPC 2.0 notification messages (without expecting a response).
+Additional information about the utility features can be found at MCP base protocol [27].
+5.2.2.6	MCP protocol procedures
+5.2.2.6.1	General
+MCP uses a stateless protocol core based on self-contained requests. This clause summarizes only the MCP protocol behaviour relevant to the present protocol analysis. Detailed operation names, message fields and transport-specific procedures are specified by MCP [27].
+5.2.2.6.2	Capability and protocol-version handling
+The MCP client and MCP server need to use protocol version and applicable capabilities. MCP provides means for a client to obtain or verify the versions and capabilities supported by a server.
+5.2.2.6.4	Asynchronous updates
+MCP provides mechanisms for a client to receive asynchronous updates when information changes or when an interaction continues over time. The applicable update mechanism depends on the supported protocol capabilities and transport.
+5.2.2.6.5	Progress and cancellation
+MCP provides mechanisms for indicating progress and for requesting cancellation of in-progress work where supported. The detailed cancellation behaviour depends on the applicable protocol and transport behaviour.
+5.2.2.7	Security
+5.2.2.7.1	General
+MCP [27] incorporates security mechanisms to protect access to tools, resources, prompts, and other capabilities exposed by MCP servers. For remote communications, MCP reuses established Internet security and identity management frameworks rather than defining protocol-specific security procedures.
+5.2.2.7.2	Authorization
+MCP Authorization is optional for MCP implementations. The MCP authorization framework is based on existing standards including OAuth 2.1 as defined in draft-ietf-oauth-v2-1 [19], OAuth Bearer Token Usage as defined in IETF RFC 6750 [20], OAuth Authorization Server Metadata as defined in IETF RFC 8414 [21], Resource Indicators for OAuth 2.0 as defined in IETF RFC 8707 [22], OAuth Authorization Server Issuer Identification as defined in IETF RFC 9207 [23], OAuth Protected Resource Metadata as defined in IETF RFC 9728 [24], OAuth Client ID Metadata Documents as defined in draft-ietf-oauth-client-id-metadata-document [25], and OpenID Connect Discovery [26].
+Editor's note:	The feasibility of 3GPP based authentication/authorization of agentic communication using MCP will be determined by SA3 and CT3 will take these determinations into consideration.
+5.2.2.8	Versioning Handling
+MCP uses date-based protocol version identifiers in the YYYY-MM-DD format. A new protocol version identifier is assigned when backward-incompatible changes are introduced.
+5.2.3	Agent Network Protocol (ANP)
+5.2.3.1	General
+The Agent Network Protocol (ANP) is an open source agent communication protocol designed to enable interoperable communication and collaboration among AI agents. ANP aims to define how agents connect with each other in an open, secure and efficient collaboration network [6]. A key design principle of ANP is the absence of a central authority, i.e. a decentralized architecture. ANP can be deployed on existing Internet infrastructure such as DNS, HTTPS, web servers and DID mechanisms [7]. Its modular design allows an implementation to adopt selected components, for example identity and description, or to combine identity, discovery and messaging into a more complete agent-to-agent communication stack. This makes ANP relevant as a candidate for 3GPP analysis because AI Agent protocol studies in 6G can include a range of deployment models, from exposure of a single network-side agent to interaction among agents in different administrative domains. ANP can be considered as a candidate AI Agent related protocol for analysis in WT#1.
+The ANP specifications are organized as a layered protocol suite. The identity and namespace layer includes did:wba and WNS, which provide verifiable agent identities, human-readable handles and cross-domain trust roots [8]. The description and discovery layer enables agents to publish capabilities and find interoperable services [9], [11]. The communication meta-protocol provides negotiation patterns for agents to exchange protocol capabilities and choose interoperable interaction paths [12]. The messaging profiles cover direct messaging, group messaging, E2EE, attachment/object transfer and federation semantics [10]. Application protocols can be built on top of the common identity, authorization and evidence mechanisms.
+ 
+Figure 5.2.3.1-1 Three-layer protocol architecture in ANP
+Editor’s Note: The referenced specifications for the instant messaging protocol [10], agent discovery protocol [11] and Meta-protocol [12] are currently in draft status. The associated text may need to be updated once these specifications are stabilized.
+The following clauses describe key aspects of ANP that can be considered in WT#1.
+5.2.3.2	Agent identity and trust establishment
+ANP treats agent identity as a fundamental primitive. The did:wba method is a web-based DID method designed for cross-platform identity authentication and agent communication [8]. A DID document can include verification material and service endpoints associated with an agent, including the AgentDescription service and ANPMessageService endpoints. In this model, an agent can have a stable agent DID that is independent of an implementation instance, terminal or worker node.
+5.2.3.3	Agent description and discovery
+ANP defines an Agent Description Protocol that uses JSON as the basic data format and supports linked-data and semantic-web features [9]. ANP also defines an Agent Discovery Protocol that uses JSON-LD and includes active discovery through well-known URI paths and passive discovery through search services [11]. An agent description can contain basic agent information, product or service information, capabilities, interfaces, protocol endpoints, supported interaction protocols and security schemes. The Agent Description specification also supports interoperability with existing standard protocols, for example OpenAPI and JSON-RPC, enabling an agent to expose both human-readable and machine-readable information.
+5.2.3.4	Protocol negotiation and interoperability
+ANP includes a communication meta-protocol concept, where agents can exchange protocol capabilities and select an interoperable interaction path based on LLM [12]. Combined with agent descriptions, this can allow an initiating agent to determine whether the peer supports a given interface, security mechanism, message format or application protocol. This approach is useful when multiple candidate AI Agent protocols or application-level protocols coexist.
+5.2.3.5	Cross-domain agent messaging and collaboration
+ANP end-to-end instant messaging is a family of specifications for cross-domain messaging between agents. It covers discovery of peer agents, direct messages, group messages, E2EE, attachment and large object transfer, and routing, relaying, sorting and result witnessing in cross-domain scenarios [10]. ANP identifies the protocol endpoint as the agent, rather than the device, terminal or internal replica. It also describes a federated architecture in which identity and service endpoints are distributed across domains.
+The messaging profiles distinguish control-plane functions, such as group creation, member management, capability negotiation, ticket issuance and cross-domain service invocation, from data-plane functions, such as direct messages, group messages and attachment object content. This separation can be useful for analysing how AI Agent messages are established, routed, authorized and protected.
+5.2.3.6	Multi-modality
+The ANP protocol supports the transmission of multi-modal data between agents, the multi-modal data including nature language and structured interface, which are defined in "interfaces" parameter in the Agent Description.
+5.2.4	Agent2Agent (A2A)
+5.2.4.1	General
+A2A is an open-source protocol framework defining canonical data models (e.g., Task) and interaction schemas for multi-agent collaboration. A2A can be a candidate protocol to evaluate payload formatting for asynchronous task negotiation and multi-turn message exchanges to support multi-agent collaboration.
+-	A2A supports Task State Machine (Submitted->Working->Input_Required-> Completed/Failed). This allows manage and track the lifecycle of long-running, multi-turn AI interactions without maintaining redundant, stateful network. 
+-	A2A's modality-agnostic "Part" structure supports the negotiation and transmission of multi-modal payloads, which is essential for low-latency, real-time autonomous collaboration.
+-	A2A supports multiple protocol bindings (e.g., HTTP/REST, JSON-RPC [16], and gRPC [18]) to ensure flexible and interoperable agent communication. Mapping the protocol's abstract data models to these diverse transport mechanisms enables seamless integration across different platforms and frameworks, enhancing network scalability and deployment adaptability.
+5.2.4.2	A2A Protocol Design principles
+The key design principles followed by A2A described in [13] are:
+-	Simple: Reuse the existing standards e.g., the HTTP defined in IETF RFC 9110 [15], JSON-RPC 2.0 [16] by the JSON-RPC 2.0 specification, Server-Sent Events [17] as specified by WHATWG HTML Standard.
+-	Asynchronous First: Designed for long-running task and human-in-the-loop interactions.
+-	Modality Agnostic: Support exchange of diverse content types including text, audio/video.
+-	Opaque execution: The collaboration between agents are based on declared capabilities and standard message, without sharing internal implementations.
+The three distinct layers of A2A protocol described in [13] includes:
+-	Layer 1: Canonical Data Model defines the core data structures including e.g., Task, Artifact, Part and message using Protocol Buffers.
+-	Layer 2: Abstract Operations defines the key operations including e.g., SendMessage, SendStreamingMessage etc.
+-	Layer 3: Protocol Bindings provides three equivalent mappings of the abstract operations and data structures to specific protocol bindings, i.e., JSON-RPC [16], gRPC [18] and HTTP/REST.
+5.2.4.3	Key elements of A2A Protocol
+5.2.4.3.1	Agent Discovery
+Three discovery mechanisms defined by A2A are supported:
+-	Well-Known URI: An agent which is designed for broad discovery within a specific domain can publish its Agent Card (structured, machine-readable manifest) at /.well-known/agent-card.json following the principles defined in IETF RFC 8615 [14].
+-	Curated Registry: A centralized repository where agents register their information and the clients query by skills or other information.
+-	Direct Configuration: The clients are directly pre-configured with the related Agent Card information or URLs utilizing hardcoded details, configuration files, environment variables or proprietary APIs.
+5.2.4.3.2	Interaction Modes
+There are three complementary mechanisms for clients to receive the updates of the task progress in A2A protocol:
+-	Polling: The client sends GetTask periodically to check the task status. This mechanism is easily to be implemented, but may cause unnecessary signalling.
+-	Streaming: The events will be returned in a real-time way to the client. This mechanism is suitable for low latency communication scenario, but requires persistent connection between the client and the server.
+-	Push Notifications: A push-notification configuration may be provided when initiating an interaction or it may be created for an existing Task. The agent sends the HTTP POST requests to client-registered endpoints when the state of the task changes, and the client does not need to maintain persistent connection. The notification payload uses the A2A format and convey the corresponding task, message, status-update or artifact-update information. Push notification allows Task updates to be delivered without maintaining a persistent A2A streaming connection and the A2A server attempts notification delivery according to the A2A push-notification procedure as defined in A2A Protocol [13].
+Editor's note:	Depends on Stage 2 FFS on the identified security threats of Push Notification and whether the network should accept the callback or not, when considering A2A use in 3GPP.
+5.2.4.3.3	Multi-modal Data Transimission
+The A2A protocol supports the negotiation and transmission of multi-modal data:
+-	When the client sends a message to the agent, "Part" is the container of the message content and used to carry e.g., pure text, image, video, structured data, raw file and URL. The "accepted_output_modes" parameter is carried to indicate the output data formats can be accepted by the client.
+-	When the agent sends a response message to the client, the "Part" structure in the artifact is used to carry the output data in one or more modes which are supported by the client.
+5.2.4.3.4	A2A Protocol Extensions
+The A2A Protocol extensions mechanism provides additional functionality, data, requirements, RPC methods or state machines beyond the core specification while maintaining backward compatibility and interoperability.
+Clients and agents negotiate to determine which extensions are active for a specific request.
+1.	Client Request: A client requests the list of extension activation to the agent.
+2.	Agent Processing: Agents perform the activation.
+3.	Response: the response should include all extensions that were successfully activated for that request.
+An extension can be used for one or more of the following purposes: Data-only extension, Profile extension, Method extension and State-machine extension. An AgentExtension may include uri, description, required and params. Extensions are inactive by default.
+5.2.4.3.5	Fundamental communication elements
+5.2.4.3.5.1	Agent Card
+The Agent Card is a JSON document that serves as one of the discovery mechanisms (see clause 5.2.4.3.1). It provides essential metadata about an agent. Clients parse this information to determine if an agent is suitable for a given task, how to structure requests, and how to communicate securely. 
+The detailed Agent Card object, please refer to clause 4.4.1 of A2A [13].
+5.2.4.3.5.2	Task
+Task object is the core unit of action for A2A. It has a current status and when results are created for the task they are stored in the artifact. If there are multiple turns for a task, these are stored in history.
+The detailed Task object, please refer to clause 4.1.1 of A2A [13].
+The Task state machine supports asynchronous, long-running interactions with human-in-the-loop interruptions, enabling clients to track task progress via the polling, streaming or push notification interaction modes described in clause 5.2.4.3.2.
+5.2.4.3.5.3	Message
+Message object represents a single turn of communication between a client and an agent. It includes a role ("user" or "agent") and a unique message Id. It contains one or more Part objects, which are granular containers for the actual content. This design allows A2A to be modality independent.
+Message can be associated with a context and/or a task. For server messages, context Id must be provided, and task Id only if a task was created. For client messages, both fields are optional, with the caveat that if both are provided, they have to match (the context Id has to be the one that is set on the task). If only task Id is provided, the server will infer context Id from it.
+For the detailed Message object, please refer to clause 4.1.4 of A2A [13].
+The Role enumeration identifies the sender of a Message in A2A communication defined in clause 4.1.5 of A2A [13].
+5.2.4.3.5.4	Part
+The Part object is a modality-agnostic container that can hold different types of content using a one of field structure. For the detailed Part object, please refer to clause 4.1.6 of A2A [13].
+5.2.4.3.5.5	Artifact
+The Artifact object representing task outputs is defined in clause 4.1.7 of A2A [13].
+5.2.4.4	A2A Implementations and Protocol Bindings
+The A2A protocol adopts a layered architecture consisting of a canonical data model, abstract protocol operations, and protocol bindings. The Protocol Bindings of A2A provides concrete mappings of the abstract operations and data structures to specific protocol bindings (JSON-RPC [16], gRPC [18], HTTP/REST), including method names, endpoint patterns, and protocol-specific behaviors.
+A2A currently defines the following protocol bindings:
+-	JSON-RPC [16] binding, which maps A2A operations to JSON-RPC procedures and supports deployment across environments supporting JSON-RPC exchanges;
+-	gRPC binding [18], which maps A2A operations to gRPC remote procedure calls and supports efficient service-to-service communication and streaming interactions;
+-	HTTP/REST binding, which maps A2A operations to HTTP-based resource-oriented interfaces using JSON representations and web-based communication mechanisms.
+The common canonical data model ensures that equivalent A2A semantics can be supported across different protocol bindings.
+5.2.5	3GPP Protocols
+5.2.5.1	General
+This clause documents 3GPP candidate protocols to support AI (e.g. AI Agent, intent) in 6G.
+5.2.5.2	Protocol aspects that enable intent
+5.2.5.2.1	General
+An intent may be expressed in natural language, structured data, task descriptions and/or prompts. This clause documents the candidate aspects to consider the protocol for intent in 6G.
+5.3	Summary
+This clause summarizes the candidate protocols based on protocol design considerations, e.g. by providing structured evaluations, comparisons, or assessments of the protocol features and capabilities.
+
+6.	Key issues
+6.1	Key issue #X
+6.2	Key issue #Y
+7	Solutions
+Solutions in this clause may or may not consider the protocols defined in clause 5.
+7.1	Mapping of Solutions to Key Issues
+Table 7.1-1: Mapping of Solutions to Key Issues
+Solutions	Key Issues
+	#X	#Y	…	…	…
+#A					
+#B					
+
+7.X	Solution #A:
+
+7.Y	Solution #B:
+
+
+8	Evaluations
+
+9	Conclusions
+
+ 
+Annex A:
+Change history
+Change history
+Date	Meeting	TDoc	CR	Rev	Cat	Subject/Comment	New version
+2026-05	CT3#147	C3-262716				TR skeleton	0.0.0
+2026-05	CT3#147	C3-262804				Inclusion of approved pCRs: C3-262572, C3-262666, 
+C3-262669, C3-262714, C3-262715	0.1.0
+2026-09	CT3#148	C3-263885				Inclusion of approved pCRs: C3-263731, C3-263815, C3-263822, C3-263823, C3-263828, C3-263830, C3-263832, C3-263833, C3-263850, C3-263864, C3-263866, C3-263868, C3-263869, C3-263879	0.2.0
+
+

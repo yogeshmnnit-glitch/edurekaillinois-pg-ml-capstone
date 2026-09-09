@@ -1,0 +1,16 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Vector store / local databases
+ChromaKnowledgeBaseDB/
+*.db
+*.sqlite3
+
+# Runtime uploads
+Input Data/*
+!Input Data/.gitkeep

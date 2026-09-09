@@ -1,0 +1,694 @@
+---
+tags:
+- ml-intern
+---
+# 📡 Comprehensive Resource Guide: Telecom RAG for RAN Tasks
+## Datasets, Models, Frameworks & Research Papers
+
+> **Purpose:** Complete reference catalog for building a Retrieval-Augmented Generation (RAG) system for telecom RAN tasks including root cause analysis, anomaly detection, 3GPP/O-RAN specification Q&A, and network optimization.
+
+---
+
+## Table of Contents
+1. [Benchmark & Evaluation Datasets](#1-benchmark--evaluation-datasets)
+2. [Knowledge Base / Corpus Datasets (for RAG Indexing)](#2-knowledge-base--corpus-datasets-for-rag-indexing)
+3. [Training & Fine-Tuning Datasets](#3-training--fine-tuning-datasets)
+4. [Network Performance & Time-Series Datasets](#4-network-performance--time-series-datasets)
+5. [Knowledge Graph Datasets](#5-knowledge-graph-datasets)
+6. [Pre-Trained Telecom-Specialized Models](#6-pre-trained-telecom-specialized-models)
+7. [RAG Frameworks & Reference Architectures](#7-rag-frameworks--reference-architectures)
+8. [Key Research Papers (Priority Reading)](#8-key-research-papers-priority-reading)
+9. [Tools & Embedding Resources](#9-tools--embedding-resources)
+10. [Recommended Architecture for the Hackathon](#10-recommended-architecture-for-the-hackathon)
+
+---
+
+## 1. Benchmark & Evaluation Datasets
+
+### 1.1 TeleQnA — General Telecom Knowledge Benchmark
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`netop/TeleQnA`](https://hf.co/datasets/netop/TeleQnA) |
+| **GitHub** | [github.com/netop-team/TeleQnA](https://github.com/netop-team/TeleQnA) |
+| **Paper** | [arXiv:2310.15051](https://arxiv.org/abs/2310.15051) |
+| **Size** | 10,000 multiple-choice questions |
+| **Format** | JSON: `{question, option 1-5, answer, explanation, category}` |
+| **Categories** | Lexicon (500), Research Overview (2,000), Research Publications (4,500), Standards Overview (1,000), Standards Specifications (2,000) |
+| **Sources** | 3GPP standards, IEEE standards, telecom research papers, telecom lexicon |
+| **Access** | Gated (request required) |
+| **Use Case** | Primary evaluation benchmark for general telecom RAG systems |
+
+**Benchmark Scores (from paper):**
+| Model | Lexicon | Standards Specs | Overall |
+|-------|---------|-----------------|---------|
+| Mistral-7B | 56.8% | 35.6% | 47.1% |
+| GPT-3.5 | 82.2% | 57.0% | 67.3% |
+| GPT-4 | 86.8% | 64.8% | 74.9% |
+| GPT-3.5 + RAG | — | 69.8% | ↑ +12.8% on specs |
+
+---
+
+### 1.2 ORAN-Bench-13K — O-RAN Specialist Benchmark
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`prnshv/ORANBench`](https://hf.co/datasets/prnshv/ORANBench) |
+| **GitHub** | [github.com/prnshv/oran-bench-13k](https://github.com/prnshv/oran-bench-13k) |
+| **Paper** | [arXiv:2407.06245](https://arxiv.org/abs/2407.06245) |
+| **Size** | 13,952 MCQ questions from 116 O-RAN specification documents |
+| **Format** | `{question, choices: [list], answer: int (0-3), difficulty: str}` |
+| **Difficulty Tiers** | Easy / Medium / Hard |
+| **Use Case** | Evaluation for O-RAN-specific RAG systems |
+
+**RAG Performance:** ORANSight RAG → **0.784 Macro Accuracy** (21.5% better than baseline LLMs without RAG)
+
+---
+
+### 1.3 srsRANBench — Open-Source 5G Stack Q&A
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`prnshv/srsRANBench`](https://hf.co/datasets/prnshv/srsRANBench) |
+| **Topics** | DU/CU architecture, LDPC encoding, baseband processing, MAC/PHY layer functions |
+| **Format** | `{question, choices: [list], answer: int}` |
+| **Use Case** | Testing understanding of srsRAN 5G implementation details |
+
+---
+
+### 1.4 TeleLogs — 5G Drive-Test Root Cause Analysis
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`netop/TeleLogs`](https://hf.co/datasets/netop/TeleLogs) |
+| **Paper** | [arXiv:2507.21974](https://arxiv.org/abs/2507.21974) |
+| **Topics** | 5G drive-test RCA: throughput degradation, interference, handover failures |
+| **Access** | Gated |
+| **Use Case** | **Most directly relevant for RAN root cause analysis** |
+
+---
+
+### 1.5 TeleLogsAgent — LLM Tool-Use in 5G RCA
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`netop/TeleLogsAgent`](https://hf.co/datasets/netop/TeleLogsAgent) |
+| **Paper** | [arXiv:2506.10674](https://arxiv.org/abs/2506.10674) |
+| **Topics** | Benchmark for LLM tool-use capabilities in 5G network root cause analysis |
+| **Access** | Gated |
+| **Use Case** | Testing agentic RAG systems that use tools for RCA |
+
+---
+
+### 1.6 TeleMath — Telecom Mathematical Problem Solving
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`netop/TeleMath`](https://hf.co/datasets/netop/TeleMath) |
+| **Paper** | [arXiv:2506.10674](https://arxiv.org/abs/2506.10674) |
+| **Topics** | Mathematical reasoning in telecom contexts (capacity, throughput, interference calculations) |
+| **Access** | Gated |
+| **Use Case** | Evaluating numerical/mathematical reasoning for network optimization |
+
+---
+
+### 1.7 TeleTables — 3GPP Table Interpretation
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`netop/TeleTables`](https://hf.co/datasets/netop/TeleTables) |
+| **Paper** | [arXiv:2601.04202](https://arxiv.org/abs/2601.04202) |
+| **Topics** | Reading/interpreting parameter tables in 3GPP specifications |
+| **Access** | Gated |
+| **Use Case** | RAG systems answering questions about table-encoded values |
+
+---
+
+### 1.8 GSMA Open Telco Benchmark Suite (Unified)
+| Field | Details |
+|-------|---------|
+| **HF Hub (Full)** | [`GSMA/ot-full`](https://hf.co/datasets/GSMA/ot-full) — 20,588 samples |
+| **HF Hub (Lite)** | [`GSMA/ot-lite`](https://hf.co/datasets/GSMA/ot-lite) — 1,850 samples |
+| **Contains** | 8 sub-benchmarks: `3gpp_tsg`, `oranbench`, `sixg_bench`, `srsranbench`, `telelogs`, `telemath`, `teleqna`, `teletables` |
+| **Format** | `{question: str, answer: str}` (some configs add `file_name` or `choices`) |
+| **Use Case** | **Unified evaluation harness** — single dataset for all telecom benchmarks |
+
+---
+
+### 1.9 GSMA Leaderboard Scores
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`GSMA/leaderboard`](https://hf.co/datasets/GSMA/leaderboard) |
+| **Contains** | Scores for 84 models across 7 telecom-domain benchmarks |
+| **Use Case** | Compare your model against existing baselines |
+
+---
+
+### 1.10 Telco-Troubleshooting Agentic Challenge
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`netop/Telco-Troubleshooting-Agentic-Challenge`](https://hf.co/datasets/netop/Telco-Troubleshooting-Agentic-Challenge) |
+| **Downloads** | 1,900+ |
+| **Access** | Gated |
+| **Use Case** | End-to-end telco troubleshooting and optimization with agentic approaches |
+
+---
+
+## 2. Knowledge Base / Corpus Datasets (for RAG Indexing)
+
+### 2.1 GSMA/3GPP — Official 3GPP Mirror (Releases 8–20)
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`GSMA/3GPP`](https://hf.co/datasets/GSMA/3GPP) |
+| **Downloads** | 11,700+ (most downloaded telecom corpus) |
+| **Size** | Full 3GPP corpus, Releases 8 through 20 |
+| **Format** | Datalab-converted Markdown |
+| **Coverage** | All series: 3G, 4G LTE, 5G NR, and beyond |
+| **Use Case** | **PRIMARY RAG knowledge base** — most complete, best-maintained 3GPP source |
+
+---
+
+### 2.2 GSMA/3GPP-REL18 — 3GPP Release 18 Specifications
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`GSMA/3GPP-REL18`](https://hf.co/datasets/GSMA/3GPP-REL18) |
+| **Size** | 549 technical specifications and reports |
+| **Format** | Markdown, organized by series |
+| **Use Case** | Focused Release 18 (5G-Advanced) knowledge base |
+
+---
+
+### 2.3 netop/3GPP-R18 — 3GPP Release 18 (NetOp version)
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`netop/3GPP-R18`](https://hf.co/datasets/netop/3GPP-R18) |
+| **Downloads** | 293 |
+| **Use Case** | Alternative Release 18 source from NetOp team |
+
+---
+
+### 2.4 TSpec-LLM — All 3GPP Release 8–19 Documents
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`rasoul-nikbakht/TSpec-LLM`](https://hf.co/datasets/rasoul-nikbakht/TSpec-LLM) |
+| **Paper** | [arXiv:2406.01768](https://arxiv.org/abs/2406.01768) |
+| **Size** | ~15 GB, all 3GPP specs from 1999–2023 |
+| **Format** | Markdown (.md) files organized by release → series |
+| **RAG Results** | GPT-3.5: 44%→71%, Gemini: 46%→75%, GPT-4: 51%→72% |
+| **Use Case** | Well-studied corpus for RAG with published baselines |
+
+---
+
+### 2.5 Tele-Data — 2.5 Billion Token Telecom Corpus
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`AliMaatouk/Tele-Data`](https://hf.co/datasets/AliMaatouk/Tele-Data) |
+| **Paper** | [arXiv:2409.05314](https://arxiv.org/abs/2409.05314) |
+| **Size** | ~2.5 billion tokens, ~11GB |
+| **Sources** | ArXiv papers (90k, 1.08B tokens), Standards (2.8k docs, 86M tokens), Wikipedia (19.5k articles, 26M tokens), Web (740k pages, 1.55B tokens) |
+| **Use Case** | Continual pretraining or large-scale document index for RAG |
+
+---
+
+### 2.6 NextGLab FAISS Index — Pre-built O-RAN Vector Store
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`NextGLab/FAISS-v2.0`](https://hf.co/datasets/NextGLab/FAISS-v2.0) |
+| **Contents** | Pre-computed FAISS vector index from 116 O-RAN + srsRAN specs |
+| **Use Case** | **Plug-and-play retrieval** — skip embedding computation for O-RAN RAG |
+
+---
+
+### 2.7 GSMA/Open-Telco-1
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`GSMA/Open-Telco-1`](https://hf.co/datasets/GSMA/Open-Telco-1) |
+| **Size** | 100K–1M records |
+| **Format** | JSON |
+| **Use Case** | Supplementary telecom corpus |
+
+---
+
+## 3. Training & Fine-Tuning Datasets
+
+### 3.1 TeleLogs-CoT — Chain-of-Thought RCA Training Data
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`tecnicolaude/Telelogs-CoT`](https://hf.co/datasets/tecnicolaude/Telelogs-CoT) |
+| **Format** | `{q: problem_statement, c: root_cause_class, CoT: reasoning_chain, RCA: answer_class}` |
+| **Use Case** | **Train models with explicit reasoning for RCA tasks** |
+
+---
+
+### 3.2 3GPP 5G NR Q&A — Instruction-Tuning Dataset
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`raoulbia/3gpp-5g-nr-qa`](https://hf.co/datasets/raoulbia/3gpp-5g-nr-qa) |
+| **Size** | Train + Val + Test splits (10.2MB train) |
+| **Format** | `{instruction, input, output}` — instruction-tuning ready |
+| **Topics** | 5G NR (series 36/38), RAN configuration, signaling, handover, IAB, PDCP |
+| **Use Case** | Direct SFT for 5G NR question answering |
+
+---
+
+### 3.3 Tele-Eval — 750K Open-Ended Telecom Q&A Pairs
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`AliMaatouk/Tele-Eval`](https://hf.co/datasets/AliMaatouk/Tele-Eval) |
+| **Paper** | [arXiv:2409.05314](https://arxiv.org/abs/2409.05314) |
+| **Size** | 750,000 Q&A pairs |
+| **Topics** | Scholarly telecom material, standards, research |
+| **Use Case** | Large-scale instruction tuning for telecom domain |
+
+---
+
+### 3.4 TMF921 Intent-to-Config — Network Intent Translation
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`nraptisss/TMF921-intent-to-config-augmented`](https://hf.co/datasets/nraptisss/TMF921-intent-to-config-augmented) |
+| **Downloads** | 177 |
+| **Use Case** | Training models to translate network intents into configurations |
+
+---
+
+### 3.5 Telco-DPR — Hybrid Retrieval Training Data
+| Field | Details |
+|-------|---------|
+| **Paper** | [arXiv:2410.19790](https://arxiv.org/abs/2410.19790) |
+| **Contents** | Curated 3GPP corpus (text + tables) + synthetic Q/A pairs for retrieval evaluation |
+| **Metrics** | Evaluates MRR and Top-K accuracy for retrieval models |
+| **Use Case** | Training and evaluating dense passage retrievers for telecom |
+
+---
+
+## 4. Network Performance & Time-Series Datasets
+
+### 4.1 TelecomTS — Multi-Modal 5G Testbed Dataset
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`AliMaatouk/TelecomTS`](https://hf.co/datasets/AliMaatouk/TelecomTS) |
+| **Paper** | [arXiv:2510.06063](https://arxiv.org/abs/2510.06063) |
+| **Downloads** | 860 |
+| **Contents** | High-resolution, multi-modal data from a 5G telecommunications testbed |
+| **Use Case** | Anomaly detection, performance prediction, time-series forecasting |
+
+---
+
+### 4.2 5G Network Energy Consumption
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`netop/5G-Network-Energy-Consumption`](https://hf.co/datasets/netop/5G-Network-Energy-Consumption) |
+| **Contents** | Normalized real-world measurements from large-scale 5G deployment |
+| **Includes** | Energy consumption + operational data |
+| **Access** | Gated |
+| **Use Case** | Network optimization, energy efficiency analysis |
+
+---
+
+### 4.3 Beam-Level 5G Time-Series (gotsf-ds)
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`netop/gotsf-ds`](https://hf.co/datasets/netop/gotsf-ds) |
+| **Paper** | Goal-Oriented Time-Series Forecasting |
+| **Contents** | Beam-level 5G time-series measurements |
+| **Format** | CSV, tabular |
+| **Use Case** | Time-series forecasting for beam management, prediction |
+
+---
+
+### 4.4 Simu5G — Open-Source 5G Simulator Data
+| Field | Details |
+|-------|---------|
+| **GitHub** | [github.com/inet-framework/simu5G](https://github.com/inet-framework/simu5G) |
+| **Type** | Simulator (not a pre-built dataset) |
+| **Contents** | Calibrated 5G simulator for OMNeT++ |
+| **Use Case** | Generate synthetic failure scenarios, coverage problems, interference data |
+| **Note** | Must run simulation to generate data; no pre-built HF dataset available |
+
+---
+
+## 5. Knowledge Graph Datasets
+
+### 5.1 GSMA O-RAN Specification Knowledge Graph
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`GSMA/oran_spec_knowledge_graph`](https://hf.co/datasets/GSMA/oran_spec_knowledge_graph) |
+| **Contents** | Large-scale semantically-grounded KG from O-RAN Alliance specifications |
+| **Tags** | Knowledge Graph, O-RAN, RAG, Graph-RAG, Neo4j, Cypher, Hybrid-RAG |
+| **Use Case** | **Graph-RAG approaches** — combine vector retrieval with graph traversal for multi-hop reasoning |
+
+---
+
+### 5.2 3GPP Rel-19 Telecom Knowledge Graph
+| Field | Details |
+|-------|---------|
+| **HF Hub** | [`GSMA/telecom-kg-rel19`](https://hf.co/datasets/GSMA/telecom-kg-rel19) |
+| **Size** | 100K–1M records |
+| **Contents** | Knowledge graph + text chunks from 3GPP Release 19 |
+| **Developer** | Khalifa University Research Institute for Digital Future |
+| **Use Case** | Graph-enhanced RAG, entity-relation extraction, structured retrieval |
+
+---
+
+## 6. Pre-Trained Telecom-Specialized Models
+
+### 6.1 Tele-LLMs Series (Ali Maatouk / Yale & Huawei)
+*Paper: [arXiv:2409.05314](https://arxiv.org/abs/2409.05314)*
+
+| Model | Params | HF Hub | Best For |
+|-------|--------|--------|----------|
+| **LLama-3-8B-Tele-it** | 8B | [`AliMaatouk/LLama-3-8B-Tele-it`](https://hf.co/AliMaatouk/LLama-3-8B-Tele-it) | General telecom (best overall) |
+| Llama-3.2-3B-Tele-it | 3B | [`AliMaatouk/Llama-3.2-3B-Tele-it`](https://hf.co/AliMaatouk/Llama-3.2-3B-Tele-it) | Efficient telecom instruct |
+| Llama-3.2-1B-Tele-it | 1B | [`AliMaatouk/Llama-3.2-1B-Tele-it`](https://hf.co/AliMaatouk/Llama-3.2-1B-Tele-it) | Ultra-lightweight |
+| LLama-3-8B-Tele | 8B | [`AliMaatouk/LLama-3-8B-Tele`](https://hf.co/AliMaatouk/LLama-3-8B-Tele) | Base (pretrained only) |
+| Gemma-2B-Tele-it | 2B | [`AliMaatouk/Gemma-2B-Tele-it`](https://hf.co/AliMaatouk/Gemma-2B-Tele-it) | Smallest instruct |
+| Gemma-2-2B-Tele-it | 2B | [`AliMaatouk/Gemma-2-2B-Tele-it`](https://hf.co/AliMaatouk/Gemma-2-2B-Tele-it) | Updated Gemma-2 |
+| TinyLlama-1.1B-Tele-it | 1.1B | [`AliMaatouk/TinyLlama-1.1B-Tele-it`](https://hf.co/AliMaatouk/TinyLlama-1.1B-Tele-it) | Tiny instruct |
+| Phi-1.5-Tele | 1.3B | [`AliMaatouk/Phi-1.5-Tele`](https://hf.co/AliMaatouk/Phi-1.5-Tele) | Phi-based |
+
+**Training Recipe:** Continual pretraining on Tele-Data (2.5B tokens) + instruction tuning on Tele-Eval. Context: 8192 tokens.
+
+---
+
+### 6.2 ORANSight Series (NC State NextGLab)
+*Paper: [arXiv:2407.06245](https://arxiv.org/abs/2407.06245) and [arXiv:2503.05200](https://arxiv.org/abs/2503.05200)*
+
+| Model | Params | HF Hub | Notes |
+|-------|--------|--------|-------|
+| **ORANSight_Qwen_14B_Instruct** | 14B | [`NextGLab/ORANSight_Qwen_14B_Instruct`](https://hf.co/NextGLab/ORANSight_Qwen_14B_Instruct) | **Most downloaded — recommended** |
+| ORANSight_Qwen_32B_Instruct | 32B | [`NextGLab/ORANSight_Qwen_32B_Instruct`](https://hf.co/NextGLab/ORANSight_Qwen_32B_Instruct) | Largest Qwen |
+| ORANSight_Gemma_2_27B_Instruct | 27B | [`NextGLab/ORANSight_Gemma_2_27B_Instruct`](https://hf.co/NextGLab/ORANSight_Gemma_2_27B_Instruct) | Largest Gemma |
+| ORANSight_Gemma_2_9B_Instruct | 9B | [`NextGLab/ORANSight_Gemma_2_9B_Instruct`](https://hf.co/NextGLab/ORANSight_Gemma_2_9B_Instruct) | Balanced |
+| ORANSight_LLama_8B_Instruct | 8B | [`NextGLab/ORANSight_LLama_8B_Instruct`](https://hf.co/NextGLab/ORANSight_LLama_8B_Instruct) | Llama-based |
+| ORANSight_Mistral_Nemo_Instruct | 12B | [`NextGLab/ORANSight_Mistral_Nemo_Instruct`](https://hf.co/NextGLab/ORANSight_Mistral_Nemo_Instruct) | Mistral-based |
+| ORANSight_Gemma_2_2B_Instruct | 2B | [`NextGLab/ORANSight_Gemma_2_2B_Instruct`](https://hf.co/NextGLab/ORANSight_Gemma_2_2B_Instruct) | Lightweight |
+| ORANSight_Phi_Mini_Instruct | 3.8B | [`NextGLab/ORANSight_Phi_Mini_Instruct`](https://hf.co/NextGLab/ORANSight_Phi_Mini_Instruct) | Phi-based |
+| ORANSight_LLama_70B_AQLM | 70B | [`NextGLab/ORANSight_LLama_70B_Instruct_AQLM`](https://hf.co/NextGLab/ORANSight_LLama_70B_Instruct_AQLM) | Quantized 70B |
+
+**GGUF versions available:** `NextGLab/ORANSight_Gemma_2_27B_Instruct_GGUF`, `NextGLab/ORANSight_Qwen_32B_Instruct_GGUF`
+
+**Training:** QLoRA fine-tuned using RANSTRUCT (RAG-based instruction generation from 116 O-RAN specs). System prompt: `"You are an O-RAN expert assistant."`
+
+---
+
+### 6.3 Other Telecom Models
+| Model | HF Hub | Notes |
+|-------|--------|-------|
+| Qwen2.5-7B-3GPP-NR | [`raoulbia/Qwen2.5-7B-3GPP-NR`](https://hf.co/raoulbia/Qwen2.5-7B-3GPP-NR) | 5G NR specialist |
+| 5G-RCA-Reasoning-Pipeline | [`truemoham/5g-rca-reasoning-pipeline`](https://hf.co/truemoham/5g-rca-reasoning-pipeline) | RCA with SFT+RL |
+| OTel-LLM-8.3B-Classification | [`farbodtavakkoli/OTel-LLM-8.3B-Classification`](https://hf.co/farbodtavakkoli/OTel-LLM-8.3B-Classification) | Telecom classification |
+
+---
+
+### 6.4 Recommended General-Purpose Base Models for RAG
+These are NOT telecom-specific but work well as base models for RAG generation:
+
+| Model | Why Use It |
+|-------|-----------|
+| **Qwen2.5-7B-Instruct** | Strong reasoning, 128K context, open-weight |
+| **Llama-3.1-8B-Instruct** | Well-supported ecosystem, good for fine-tuning |
+| **Mistral-7B-Instruct-v0.3** | Efficient, good quality per parameter |
+| **Phi-3.5-mini-instruct** | 3.8B params, surprisingly capable for size |
+| **Gemma-2-9B-it** | Google's efficient 9B model |
+
+---
+
+## 7. RAG Frameworks & Reference Architectures
+
+### 7.1 Telco-RAG — The Reference Implementation
+| Field | Details |
+|-------|---------|
+| **GitHub** | [github.com/netop-team/Telco-RAG](https://github.com/netop-team/Telco-RAG) (72 ⭐) |
+| **Paper** | [arXiv:2404.15939](https://arxiv.org/abs/2404.15939) |
+| **Knowledge Base** | 3GPP standards documents |
+
+**Architecture:**
+```
+User Query
+  → [1] Glossary Enhancement (3GPP abbreviation expansion)
+  → [2] NN Router (classifies which of 18 3GPP series to search)
+  → [3] Retrieval-1 (preliminary context for query refinement)
+  → [4] Candidate Answer Generation (query clarification)
+  → [5] Retrieval-2 (final retrieval on selected series)
+  → [6] LLM Generation (with source attribution)
+```
+
+**Optimal Hyperparameters (from paper):**
+- Chunk size: **125 tokens** (smaller is better for technical docs)
+- Embedding model: **text-embedding-3-large** (outperforms ada-002)
+- Index: **FAISS IVF** with flat quantizer
+- Retrieved context: 5 chunks
+- Performance: **73.3% accuracy** on TeleQnA Standards Specifications
+
+---
+
+### 7.2 ORANSight / RANSTRUCT — O-RAN RAG Pipeline
+| Field | Details |
+|-------|---------|
+| **Paper** | [arXiv:2503.05200](https://arxiv.org/abs/2503.05200) |
+| **FAISS Index** | [`NextGLab/FAISS-v2.0`](https://hf.co/datasets/NextGLab/FAISS-v2.0) |
+| **Framework** | Two-agent: Mistral (question generation) + Qwen (answer generation) |
+| **Source Docs** | 116 O-RAN specification documents |
+| **Result** | 0.784 Macro Accuracy on ORAN-Bench-13K |
+
+---
+
+### 7.3 Radio-RAG — Radio Regulations RAG
+| Field | Details |
+|-------|---------|
+| **GitHub** | [github.com/Zakaria010/Radio-RAG](https://github.com/Zakaria010/Radio-RAG) |
+| **Paper** | [arXiv:2509.09651](https://arxiv.org/abs/2509.09651) |
+| **Use Case** | RAG for radio regulation interpretation |
+| **Result** | +12% accuracy over naive document insertion |
+
+---
+
+### 7.4 TSpec-LLM RAG Pipeline
+| Field | Details |
+|-------|---------|
+| **Paper** | [arXiv:2406.01768](https://arxiv.org/abs/2406.01768) |
+| **Corpus** | All 3GPP specs R8-R19 |
+| **Result** | GPT-3.5: 44%→71%, GPT-4: 51%→72% with naive RAG |
+
+---
+
+### 7.5 FlexRAG — General-Purpose RAG Framework
+| Field | Details |
+|-------|---------|
+| **GitHub** | [github.com/ictnlp/flexrag](https://github.com/ictnlp/flexrag) (236 ⭐) |
+| **Use Case** | Comprehensive RAG framework supporting text + multimodal RAG |
+| **Note** | Can be adapted for telecom with domain-specific components |
+
+---
+
+## 8. Key Research Papers (Priority Reading)
+
+### 🔴 Must-Read (Critical for Implementation)
+
+| Paper | ArXiv | Key Contribution |
+|-------|-------|-----------------|
+| **Telco-RAG** | [2404.15939](https://arxiv.org/abs/2404.15939) | Best RAG architecture for telecom; NN Router, glossary enhancement |
+| **ORAN-Bench-13K** | [2407.06245](https://arxiv.org/abs/2407.06245) | O-RAN benchmark + ORANSight RAG pipeline |
+| **TeleQnA** | [2310.15051](https://arxiv.org/abs/2310.15051) | Primary evaluation benchmark methodology |
+| **Reasoning LLMs for RCA in 5G** | [2507.21974](https://arxiv.org/abs/2507.21974) | SFT+RL training recipe for root cause analysis |
+
+### 🟡 Important (Architecture & Training Decisions)
+
+| Paper | ArXiv | Key Contribution |
+|-------|-------|-----------------|
+| **TSpec-LLM** | [2406.01768](https://arxiv.org/abs/2406.01768) | 3GPP corpus preparation + RAG baselines |
+| **Tele-LLMs** | [2409.05314](https://arxiv.org/abs/2409.05314) | Domain adaptation: continual pretraining recipe |
+| **TelecomGPT** | [2407.09424](https://arxiv.org/abs/2407.09424) | Full pipeline: pretrain + SFT + RLHF for telecom |
+| **ORANSight-2.0 (RANSTRUCT)** | [2503.05200](https://arxiv.org/abs/2503.05200) | RAG-based instruction generation framework |
+| **TelcoLM** | [2412.15891](https://arxiv.org/abs/2412.15891) | Key finding: IAPT-only can match full DAPT+IAPT |
+| **Telco-DPR** | [2410.19790](https://arxiv.org/abs/2410.19790) | Dense retriever evaluation for 3GPP (MRR, Top-K) |
+
+### 🟢 Supplementary
+
+| Paper | ArXiv | Key Contribution |
+|-------|-------|-----------------|
+| **TeleTables** | [2601.04202](https://arxiv.org/abs/2601.04202) | Table comprehension in 3GPP specs |
+| **RAG for Radio Regulations** | [2509.09651](https://arxiv.org/abs/2509.09651) | Domain-specific retrieval metrics |
+| **Trustworthy RAG Survey** | [2502.06872](https://arxiv.org/abs/2502.06872) | Reliability, privacy, explainability in RAG |
+| **Multi-task Retriever Fine-tuning** | [2501.04652](https://arxiv.org/abs/2501.04652) | Instruction-tuned retrieval encoder for domain RAG |
+| **RAGRoute (Federated RAG)** | [2502.19280](https://arxiv.org/abs/2502.19280) | Dynamic source selection for multi-repo RAG |
+
+---
+
+## 9. Tools & Embedding Resources
+
+### Embedding Models for Telecom RAG
+| Model | Dimensions | Notes |
+|-------|-----------|-------|
+| **text-embedding-3-large** (OpenAI) | 3072 | Best performance in Telco-RAG experiments |
+| **all-MiniLM-L6-v2** (Sentence Transformers) | 384 | Good balance of speed/quality for open-source |
+| **bge-large-en-v1.5** (BAAI) | 1024 | Strong open-source alternative |
+| **gte-large-en-v1.5** (Alibaba) | 1024 | High quality, open-source |
+| **nomic-embed-text-v1.5** | 768 | Long context (8192 tokens) |
+
+### Vector Stores & Indexing
+| Tool | Use Case |
+|------|----------|
+| **FAISS** | Used by Telco-RAG and ORANSight; good for local/offline |
+| **ChromaDB** | Simple Python-native vector DB |
+| **Weaviate** | Production-grade with hybrid search |
+| **Qdrant** | High-performance, filtering support |
+| **LangChain** | Orchestration framework (used by ORANSight) |
+| **LlamaIndex** | Alternative RAG orchestration |
+
+### Re-ranking Models
+| Model | Notes |
+|-------|-------|
+| **cross-encoder/ms-marco-MiniLM-L-6-v2** | Fast, good baseline |
+| **BAAI/bge-reranker-v2-m3** | Multilingual, strong |
+| **Cohere Rerank** | API-based, high quality |
+
+---
+
+## 10. Recommended Architecture for the Hackathon
+
+### Targeting the KPIs
+
+| Metric | Target | How to Achieve |
+|--------|--------|---------------|
+| MRR > 75% | Use Telco-RAG's NN Router + glossary enhancement + re-ranking |
+| Top-k Accuracy > 85% | Fine-tune retriever on Telco-DPR; use chunking at 125 tokens |
+| Accuracy > 80% | Use telecom-specialized model (Tele-LLM or ORANSight) as generator |
+| Recall > 85% | Hybrid retrieval (BM25 + dense); increase k in retrieval |
+| Faithfulness > 90% | Source attribution in prompts; use extractive + generative approach |
+
+### Suggested Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    USER QUERY                                 │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  [1] QUERY PREPROCESSING                                     │
+│  • 3GPP Abbreviation Expansion (from TeleQnA Lexicon)       │
+│  • Query Classification (RCA / QnA / Optimization)          │
+│  • Intent Detection                                          │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  [2] INTELLIGENT ROUTING                                     │
+│  • NN Router → selects 3GPP series OR O-RAN spec category   │
+│  • Routes to appropriate sub-index                           │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  [3] HYBRID RETRIEVAL                                        │
+│  • Dense: FAISS/Qdrant with text-embedding-3-large          │
+│  • Sparse: BM25 for exact term matching                      │
+│  • Fusion: Reciprocal Rank Fusion (RRF)                     │
+│  • Re-ranking: Cross-encoder for top candidates             │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  [4] GENERATION                                              │
+│  • Model: ORANSight_Qwen_14B or LLama-3-8B-Tele-it         │
+│  • Prompt: Include retrieved chunks + source attribution    │
+│  • Multi-step reasoning for RCA tasks                        │
+│  • Chain-of-thought for complex queries                      │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  [5] POST-PROCESSING                                         │
+│  • Source citation                                           │
+│  • Confidence scoring                                        │
+│  • Explanation generation                                    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Quick-Start Data Selection
+
+| Task | Knowledge Base | Eval Dataset | Train Dataset |
+|------|---------------|--------------|---------------|
+| **3GPP Q&A** | `GSMA/3GPP` | `GSMA/ot-full` (teleqna config) | `raoulbia/3gpp-5g-nr-qa` |
+| **O-RAN Q&A** | `NextGLab/FAISS-v2.0` | `GSMA/ot-full` (oranbench config) | Use RANSTRUCT approach |
+| **Root Cause Analysis** | `GSMA/3GPP` + drive-test logs | `netop/TeleLogs` | `tecnicolaude/Telelogs-CoT` |
+| **Anomaly Detection** | `AliMaatouk/TelecomTS` | Custom metrics | `netop/5G-Network-Energy-Consumption` |
+| **Network Optimization** | `GSMA/3GPP` + `netop/gotsf-ds` | `netop/TeleMath` | Simu5G synthetic data |
+
+---
+
+## Appendix A: GitHub Repositories
+
+| Repository | Stars | Purpose |
+|-----------|-------|---------|
+| [netop-team/TeleQnA](https://github.com/netop-team/TeleQnA) | 77 | Benchmark dataset code |
+| [netop-team/Telco-RAG](https://github.com/netop-team/Telco-RAG) | 72 | Reference RAG implementation |
+| [Ali-maatouk/Tele-LLMs](https://github.com/Ali-maatouk/Tele-LLMs) | — | Tele-LLMs training code |
+| [prnshv/oran-bench-13k](https://github.com/prnshv/oran-bench-13k) | 10 | O-RAN benchmark code |
+| [Zakaria010/Radio-RAG](https://github.com/Zakaria010/Radio-RAG) | 2 | Radio regulation RAG |
+| [ictnlp/flexrag](https://github.com/ictnlp/flexrag) | 236 | General RAG framework |
+| [inet-framework/simu5G](https://github.com/inet-framework/simu5G) | — | 5G Network Simulator |
+| [Arstanley/Awesome-Trustworthy-RAG](https://github.com/Arstanley/Awesome-Trustworthy-RAG) | 109 | RAG trustworthiness resources |
+
+---
+
+## Appendix B: Key Findings from Literature
+
+1. **Chunk size matters:** 125 tokens outperforms larger chunks for technical telecom documents (Telco-RAG)
+2. **Glossary enhancement critical:** Expanding 3GPP abbreviations before embedding improves retrieval by 5-10% (Telco-RAG)
+3. **NN routing helps:** Classifying queries to relevant document subsets reduces noise significantly (Telco-RAG)
+4. **IAPT can match DAPT+IAPT:** You may not need expensive continual pretraining; instruction tuning alone can be sufficient for RAG (TelcoLM)
+5. **RAG outperforms fine-tuning alone:** GPT-3.5+RAG (69.8%) beats GPT-4 standalone (64.8%) on standards specs (TeleQnA)
+6. **Chain-of-thought helps RCA:** Explicit reasoning chains improve root cause analysis accuracy (TeleLogs paper)
+7. **Hybrid retrieval is essential:** BM25 + dense retrieval with reciprocal rank fusion outperforms either alone (Telco-DPR)
+8. **QLoRA is sufficient:** ORANSight achieves SOTA with 4-bit QLoRA fine-tuning — no need for full fine-tuning (ORANSight)
+
+---
+
+## Appendix C: Evaluation Framework
+
+Use `GSMA/ot-full` as your unified evaluation harness. It contains all 8 benchmarks in a single dataset:
+
+```python
+from datasets import load_dataset
+
+# Load specific benchmark
+teleqna = load_dataset("GSMA/ot-full", "teleqna")
+oranbench = load_dataset("GSMA/ot-full", "oranbench")
+telelogs = load_dataset("GSMA/ot-full", "telelogs")
+
+# Or load lite version for quick iteration
+lite = load_dataset("GSMA/ot-lite", "teleqna")
+```
+
+### Metrics Implementation
+```python
+# MRR (Mean Reciprocal Rank)
+def mrr(retrieved_docs, relevant_doc):
+    for i, doc in enumerate(retrieved_docs):
+        if doc == relevant_doc:
+            return 1.0 / (i + 1)
+    return 0.0
+
+# Top-K Accuracy
+def top_k_accuracy(retrieved_docs, relevant_doc, k=5):
+    return 1.0 if relevant_doc in retrieved_docs[:k] else 0.0
+
+# Faithfulness (via NLI or source-grounding check)
+# Use an NLI model to check if the generated answer is entailed by retrieved context
+```
+
+---
+
+*Document generated: May 2026*
+*Sources: HuggingFace Hub, ArXiv, GitHub*
+
+<!-- ml-intern-provenance -->
+## Generated by ML Intern
+
+This dataset repository was generated by [ML Intern](https://github.com/huggingface/ml-intern), an agent for machine learning research and development on the Hugging Face Hub.
+
+- Try ML Intern: https://smolagents-ml-intern.hf.space
+- Source code: https://github.com/huggingface/ml-intern
+
+## Usage
+
+```python
+from datasets import load_dataset
+
+dataset = load_dataset("Riteesh2k6/Telecom-RAG-Resources")
+```
